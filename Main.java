@@ -45,8 +45,6 @@ public class Main {
                 return;
             }
         }
-
-        // Login process
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
