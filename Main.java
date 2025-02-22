@@ -1,7 +1,7 @@
 import controllers.*;
+import java.util.Scanner;
 import models.*;
 import views.*;
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,9 +41,12 @@ public class Main {
                 System.out.println("Registration successful!");
             } else {
                 System.out.println("Username already exists.");
+                scanner.close();
+                return;
             }
         }
 
+        // Login process
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
@@ -59,74 +62,85 @@ public class Main {
         System.out.println("Login successful!");
         userView.displayUser(user);
 
-        System.out.println("\nChoose an option:");
-        System.out.println("1. View Plans");
-        System.out.println("2. Subscribe to a Plan");
-        System.out.println("3. View Subscription");
-        System.out.println("4. Pay Bill");
-        System.out.println("5. Provide Feedback");
-        int action = scanner.nextInt();
-        scanner.nextLine();
+        while (true) {
+            System.out.println("\nChoose an option:");
+            System.out.println("1. View Plans");
+            System.out.println("2. Subscribe to a Plan");
+            System.out.println("3. View Subscription");
+            System.out.println("4. Pay Bill");
+            System.out.println("5. Provide Feedback");
+            System.out.println("6. Exit");
 
-        switch (action) {
-            case 1:
-                planView.displayPlans(planController.getPlans());
-                break;
+            int action = scanner.nextInt();
+            scanner.nextLine();
 
-            case 2:
-                planView.displayPlans(planController.getPlans());
-                System.out.print("Enter plan name: ");
-                String planName = scanner.nextLine();
+            switch (action) {
+                case 1:
+                    planView.displayPlans(planController.getPlans());
+                    break;
 
-                Plan selectedPlan = null;
-                for (Plan plan : planController.getPlans()) {
-                    if (plan.getName().equalsIgnoreCase(planName)) {
-                        selectedPlan = plan;
-                        break;
+                case 2:
+                    planView.displayPlans(planController.getPlans());
+                    System.out.print("\nEnter plan name: ");
+                    String planName = scanner.nextLine();
+
+                    Plan selectedPlan = null;
+                    for (Plan plan : planController.getPlans()) {
+                        if (plan.getName().equalsIgnoreCase(planName)) {
+                            selectedPlan = plan;
+                            break;
+                        }
                     }
-                }
 
-                if (selectedPlan != null) {
-                    Subscription newSubscription = subscriptionController.createSubscription(selectedPlan);
-                    user.setSubscription(newSubscription);
-                    System.out.println("Subscription successful!");
-                } else {
-                    System.out.println("Invalid plan name.");
-                }
-                break;
+                    if (selectedPlan != null) {
+                        Subscription newSubscription = subscriptionController.createSubscription(selectedPlan);
+                        user.setSubscription(newSubscription); 
+                        System.out.println("\nSubscription successful!");
+                    } else {
+                        System.out.println("\nInvalid plan name.");
+                    }
+                    break; 
 
-            case 3:
-                subscriptionView.displaySubscription(user.getSubscription());
-                break;
+                case 3:
+                    if (user.getSubscription() != null) {
+                        subscriptionView.displaySubscription(user.getSubscription());
+                    } else {
+                        System.out.println("\nNo active subscription.");
+                    }
+                    break;
 
-            case 4:
-                Billing bill = billingController.generateBilling(user);
-                billingView.displayBill(bill);
-                System.out.println("Do you want to pay? (yes/no)");
-                String payChoice = scanner.nextLine();
+                case 4:
+                    Billing bill = billingController.generateBilling(user);
+                    billingView.displayBill(bill);
+                    System.out.println("\nDo you want to pay? (yes/no)");
+                    String payChoice = scanner.nextLine();
 
-                if (payChoice.equalsIgnoreCase("yes")) {
-                    paymentController.processPayment(user.getUsername(), bill.getAmount());
-                    paymentView.displayPayment(new Payment(user.getUsername(), bill.getAmount()));
-                }
-                break;
+                    if (payChoice.equalsIgnoreCase("yes")) {
+                        paymentController.processPayment(user.getUsername(), bill.getAmount());
+                        paymentView.displayPayment(new Payment(user.getUsername(), bill.getAmount()));
+                    }
+                    break;
 
-            case 5:
-                System.out.print("Enter feedback message: ");
-                String message = scanner.nextLine();
-                System.out.print("Enter rating (1-5): ");
-                int rating = scanner.nextInt();
-                scanner.nextLine();
+                case 5:
+                    System.out.print("\nEnter feedback message: ");
+                    String message = scanner.nextLine();
+                    System.out.print("\nEnter rating (1-5): ");
+                    int rating = scanner.nextInt();
+                    scanner.nextLine();
 
-                Feedback feedback = new Feedback(user.getUsername(), message, rating);
-                feedbackController.addFeedback(feedback);
-                feedbackView.displayFeedback(feedback);
-                break;
+                    Feedback feedback = new Feedback(user.getUsername(), message, rating);
+                    feedbackController.addFeedback(feedback);
+                    feedbackView.displayFeedback(feedback);
+                    break;
 
-            default:
-                System.out.println("Invalid option.");
+                case 6:
+                    System.out.println("\nExiting the system. Thank you!");
+                    scanner.close();
+                    return; 
+
+                default:
+                    System.out.println("\nInvalid option. Please try again.");
+            }
         }
-
-        scanner.close();
     }
 }
